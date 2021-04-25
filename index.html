@@ -2,81 +2,71 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>天知道</title>
-  <link rel="stylesheet" href="css/reset.css" />
-  <link rel="stylesheet" href="css/index.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>axios</title>
+  <style>
+    .defalutCity {
+      font-size: 10px;
+    }
+
+    .defalutCity span {
+      margin-right: 10px;
+    }
+  </style>
+  <!-- 引入axios -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- 引入vue -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
 </head>
 
 <body>
-  <div class="wrap" id="app">
-    <div class="search_form">
-      <div class="logo"><img src="img/logo.png" alt="logo" /></div>
-      <div class="form_group">
-        <input type="text" class="input_txt" placeholder="请输入查询的天气" v-model="city" @keyup.enter="queryWeather" />
-        <button class="input_sub" @click="queryWeather">
-          搜 索
-        </button>
-      </div>
-      <div class="hotkey">
-        <!-- <a href="javascript:;" @click="clickSearch('北京')">北京</a>
-          <a href="javascript:;" @click="clickSearch('上海')">上海</a>
-          <a href="javascript:;" @click="clickSearch('广州')">广州</a>
-          <a href="javascript:;" @click="clickSearch('深圳')">深圳</a> -->
-        <a href="javascript:;" v-for="city in hotCitys" @click="clickSearch(city)">{{ city }}</a>
-      </div>
+  <div id="app">
+    <input v-model="city" @keyup.enter="getWeather(city)" type="text" placeholder="请输入想查询的城市">
+    <button @click="getWeather(city)">搜索</button>
+    <div class="defalutCity"><span @click="selectDefault(index)" v-for="(city,index) in defaultCity">{{city}}</span>
     </div>
-    <ul class="weather_list">
-      <li v-for="(item,index) in forecastList" :key="item.date" :style="{transitionDelay:index*100+'ms'}">
-        <div class="info_type">
-          <span class="iconfont">{{ item.type }}</span>
-        </div>
-        <div class="info_temp">
-          <b>{{ item.low}}</b>
-          ~
-          <b>{{ item.high}}</b>
-
-        </div>
-        <div class="info_date">
-          <span>{{ item.date }}</span>
-        </div>
-      </li>
-    </ul>
+    <div>
+      <div v-for="(data,index) in xxx">{{data}}</div>
+    </div>
   </div>
-  <!-- 开发环境版本，包含了有帮助的命令行警告 -->
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <!-- 官网提供的 axios 在线地址 -->
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
   <script>
-    new Vue({
+    let app = new Vue({
       el: "#app",
       data: {
-        city: "武汉",
-        forecastList: [],
-        hotCitys: ["北京", "上海", "广州", "深圳"]
+        xxx: [],
+        city: "",
+        index: 0,
+        defaultCity: ["北京", "上海", "广州", "深圳"]
       },
       methods: {
-        queryWeather() {
-          this.forecastList = [];
-          axios
-            .get(`http://wthrcdn.etouch.cn/weather_mini?city=${this.city}`)
-            .then(res => {
-              console.log(res);
-              this.forecastList = res.data.data.forecast;
+        getWeather: function (city) {
+          axios.get(
+              "http://wthrcdn.etouch.cn/weather_mini", {
+                params: {
+                  city
+                }
+              }
+            )
+            .then(response => {
+              this.xxx[0] = response.data.data.yesterday
+              this.xxx[1] = response.data.data.forecast[0]
+              this.xxx[2] = response.data.data.forecast[1]
+              this.xxx[3] = response.data.data.forecast[2]
+              this.xxx[4] = response.data.data.forecast[3]
+              this.xxx[5] = response.data.data.forecast[4]
+            }, err => {
+              console.error(err)
             })
-            .catch(err => {
-              console.log(err);
-            })
-            .finally(() => { });
         },
-        clickSearch(city) {
-          this.city = city;
-          this.queryWeather();
+        selectDefault: function (index) {
+          this.city = this.defaultCity[index]
+          this.getWeather(this.city)
         }
       }
-    });
+    })
   </script>
 </body>
 
